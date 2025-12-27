@@ -1,0 +1,220 @@
+# ============================================================================
+# UNIVERSAL DECISION PLATFORM - Kubernetes Manifests (v1)
+# ============================================================================
+# v1 = Rules-only engine (no AI)
+# This is the stable baseline deployment
+# ============================================================================
+
+---
+# Namespace for isolation
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: decision-platform
+  labels:
+    app.kubernetes.io/name: decision-platform
+
+---
+# ConfigMap for rules configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: decision-rules-v1
+  namespace: decision-platform
+  labels:
+    app: decision-platform
+    version: v1
+data:
+  rules.yaml: |
+    version: "1.0"
+    metadata:
+      description: "Production rules v1"
+      last_updated: "2024-01-01"
+    
+    rules:
+      - id: "DENY_001"
+        name: "Block critical risk"
+        condition:
+          operator: "OR"
+          operands:
+            - field: "signals.risk_score"
+              op: "gte"
+              value: 95
+            - field: "signals.is_blacklisted"
+              op: "eq"
+              value: true
+        outcome: "SAFE_DENY"
+        priority: 1000
+        enabled: true
+
+      - id: "ALLOW_001"
+        name: "Allow trusted verified"
+        condition:
+          operator: "AND"
+          operands:
+            - field: "signals.is_verified"
+              op: "eq"
+              value: true
+            - field: "signals.source_reputation"
+              op: "gte"
+              value: 90
+            - field: "signals.risk_score"
+              op: "lt"
+              value: 20
+        outcome: "SAFE_ALLOW"
+        priority: 500
+        enabled: true
+
+      - id: "ALLOW_002"
+        name: "Allow whitelisted"
+        condition:
+          field: "signals.is_whitelisted"
+          op: "eq"
+          value: true
+        outcome: "SAFE_ALLOW"
+        priority: 600
+        enabled: true
+
+      - id: "GREY_001"
+        name: "Medium risk review"
+        condition:
+          operator: "AND"
+          operands:
+            - field: "signals.risk_score"
+              op: "gte"
+              value: 40
+            - field: "signals.risk_score"
+              op: "lt"
+              value: 95
+        outcome: "GREY_ZONE"
+        priority: 300
+        enabled: true
+
+    defaults:
+      no_match_outcome: "GREY_ZONE"
+
+---
+# Deployment for v1
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: decision-platform-v1
+  namespace: decision-platform
+  labels:
+    app: decision-platform
+    version: v1
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: decision-platform
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: decision-platform
+        version: v1
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "3000"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+        - name: decision-platform
+          image: decision-platform:v1
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+              name: http
+              protocol: TCP
+          env:
+            - name: NODE_ENV
+              value: "production"
+            - name: PORT
+              value: "3000"
+            - name: ENGINE_VERSION
+              value: "v1"
+            - name: AI_ENABLED
+              value: "false"
+            - name: RULES_CONFIG_PATH
+              value: "/config/rules.yaml"
+          volumeMounts:
+            - name: rules-config
+              mountPath: /config
+              readOnly: true
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+      volumes:
+        - name: rules-config
+          configMap:
+            name: decision-rules-v1
+
+---
+# Service for v1
+apiVersion: v1
+kind: Service
+metadata:
+  name: decision-platform-v1
+  namespace: decision-platform
+  labels:
+    app: decision-platform
+    version: v1
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 3000
+      protocol: TCP
+      name: http
+  selector:
+    app: decision-platform
+    version: v1
+
+---
+# HorizontalPodAutoscaler for v1
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: decision-platform-v1-hpa
+  namespace: decision-platform
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: decision-platform-v1
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
