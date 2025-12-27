@@ -18,12 +18,15 @@
 import { RuleEngine, OUTCOMES } from "./rules/engine.js";
 import { AIAnalyzer } from "./ai/analyzer.js";
 import * as metrics from "./metrics/prometheus.js";
+import { buildAIProviders } from "./ai/provider.js";
 
 /**
  * DecisionService class - main orchestrator
  */
 export class DecisionService {
   constructor(config) {
+
+    const aiProviders = buildAIProviders(process.env)
     this.version = config.version || "v1";
 
     // Initialize rule engine
@@ -37,6 +40,7 @@ export class DecisionService {
       apiUrl: config.aiApiUrl,
       apiKey: config.aiApiKey,
       model: config.aiModel,
+      providers: aiProviders,
       timeout: config.aiTimeout,
       ...this.ruleEngine.getAIConfig(),
     });
@@ -53,6 +57,9 @@ export class DecisionService {
         this.version
       }, AI Enabled: ${this.aiAnalyzer.isEnabled()}`
     );
+
+    console.log("[DecisionService] AI Providers:", aiProviders);
+
   }
 
   /**
@@ -96,7 +103,7 @@ export class DecisionService {
         if (aiInsight.analyzed) {
           metrics.recordAIInvocation({
             success: aiInsight.analyzed,
-            provider: this.aiAnalyzer.getStatus().provider,
+            provider: aiInsight.provider,
             durationMs: aiInsight.analysisTimeMs || 0,
           });
         }
