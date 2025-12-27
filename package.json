@@ -1,0 +1,25 @@
+{
+  "name": "decision-platform",
+  "version": "1.0.0",
+  "description": "Universal Decision Platform - Domain-agnostic rule engine with AI-assisted grey-zone analysis",
+  "main": "src/server.js",
+  "type": "module",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "test": "node --test src/**/*.test.js"
+  },
+  "keywords": ["decision-engine", "rule-engine", "mlops", "kubernetes"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.13.2",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "js-yaml": "^4.1.1",
+    "prom-client": "^15.1.3"
+  }
+}
