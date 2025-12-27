@@ -1,4 +1,5 @@
 import { Router } from "express";
+import * as metrics from "../metrics/prometheus.js"
 
 export function decisionRoutes(decisionService, ENGINE_VERSION) {
   const router = Router();
@@ -6,14 +7,14 @@ export function decisionRoutes(decisionService, ENGINE_VERSION) {
   router.post("/decide", async (req, res) => {
     try {
       const input = req.body;
-      const result = await decisionService.decide(input);
+      const result = await decisionService.decide(input, req.requestId);
 
       const statusCode = result.decision.final === "ERROR" ? 500 : 200;
 
       res.status(statusCode).json(result);
     } catch (error) {
       console.error(`[${req.requestId}] Deciosn error`, error);
-      getMetrics.recordError("unhandled_error", "/decide");
+      metrics.recordError("unhandled_error", "/decide");
 
       res.status(500).json({
         decision: {

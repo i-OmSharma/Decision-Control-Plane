@@ -60,11 +60,11 @@ const RULES_CONFIG_PATH =
 
 // AI Configuration
 const AI_ENABLED = process.env.AI_ENABLED === "true";
-const AI_PROVIDER = process.env.AI_PROVIDER || "openai";
-const AI_API_URL =
-  process.env.AI_API_URL || "https://api.openai.com/v1/chat/completions";
-const AI_API_KEY = process.env.AI_API_KEY || "";
-const AI_MODEL = process.env.AI_MODEL || "gpt-4o-mini";
+// const AI_PROVIDER = process.env.AI_PROVIDER || "openai";
+// const AI_API_URL =
+//   process.env.AI_API_URL || "https://api.openai.com/v1/chat/completions";
+// const AI_API_KEY = process.env.AI_API_KEY || "";
+// const AI_MODEL = process.env.AI_MODEL || "gpt-4o-mini";
 const AI_TIMEOUT_MS = parseInt(process.env.AI_TIMEOUT_MS) || 5000;
 
 // ============================================================================
@@ -79,10 +79,10 @@ const decisionService = new DecisionService({
   version: ENGINE_VERSION,
   rulesConfigPath: RULES_CONFIG_PATH,
   aiEnabled: AI_ENABLED,
-  aiProvider: AI_PROVIDER,
-  aiApiUrl: AI_API_URL,
-  aiApiKey: AI_API_KEY,
-  aiModel: AI_MODEL,
+  // aiProvider: AI_PROVIDER,
+  // aiApiUrl: AI_API_URL,
+  // aiApiKey: AI_API_KEY,
+  // aiModel: AI_MODEL,
   aiTimeout: AI_TIMEOUT_MS,
 });
 
