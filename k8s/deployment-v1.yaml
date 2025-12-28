@@ -30,7 +30,7 @@ data:
     metadata:
       description: "Production rules v1"
       last_updated: "2024-01-01"
-    
+
     rules:
       - id: "DENY_001"
         name: "Block critical risk"
@@ -121,7 +121,7 @@ spec:
     spec:
       containers:
         - name: decision-platform
-          image: decision-platform:v1
+          image: ghcr.io/i-omsharma/decision-control-plane:v1
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3000
