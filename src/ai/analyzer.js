@@ -20,8 +20,8 @@ export class AIAnalyzer {
   // Prompt
   // ============================================================================
 
-  buildPrompt(input, ruleContext) {
-    return `You are a decision support system analyzing a GREY-ZONE request.
+buildPrompt(input, ruleContext) {
+  return `You are a decision support system analyzing a GREY-ZONE request.
 
 REQUEST:
 ${JSON.stringify(input, null, 2)}
@@ -29,7 +29,11 @@ ${JSON.stringify(input, null, 2)}
 RULE CONTEXT:
 ${JSON.stringify(ruleContext.evaluationPath || [], null, 2)}
 
-Respond ONLY in JSON:
+Respond ONLY with valid JSON.
+Do not include explanations, markdown, or code fences.
+The response must start with '{' and end with '}'.
+
+JSON schema:
 {
   "recommendation": "ALLOW" | "DENY" | "REVIEW",
   "confidence": 0.0-1.0,
@@ -37,7 +41,8 @@ Respond ONLY in JSON:
   "risk_factors": [],
   "mitigating_factors": []
 }`;
-  }
+}
+
 
   // ============================================================================
   // Provider call
@@ -91,21 +96,26 @@ Respond ONLY in JSON:
     return content;
   }
 
-  extractContent(providerName, response) {
-    if (providerName === "gemini") {
-      return (
-        response.data?.candidates?.[0]?.content?.parts
-          ?.map(p => p.text)
-          ?.join("") || null
-      );
-    }
+extractContent(providerName, response) {
+  if (providerName === "gemini") {
+    const parts = response.data?.candidates?.[0]?.content?.parts;
+    if (!Array.isArray(parts)) return null;
 
-    if (providerName === "claude") {
-      return response.data?.content?.[0]?.text || null;
-    }
+    const text = parts
+      .map(p => typeof p.text === "string" ? p.text : "")
+      .join("")
+      .trim();
 
-    return null;
+    return text.length > 0 ? text : null;
   }
+
+  if (providerName === "claude") {
+    return response.data?.content?.[0]?.text || null;
+  }
+
+  return null;
+}
+
 
   // ============================================================================
   // Parsing
