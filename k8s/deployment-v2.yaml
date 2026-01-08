@@ -13,8 +13,8 @@ metadata:
   namespace: decision-platform
 type: Opaque
 stringData:
-  gemini-key: ""
-  claude-key: ""
+  gemini-key: <API_KEY>
+  claude-key: <API_KEY>
 
 ---
 apiVersion: v1
@@ -125,8 +125,8 @@ spec:
     spec:
       containers:
         - name: decision-platform
-          image: decision-platform:v2
-          imagePullPolicy: IfNotPresent
+          image: ghcr.io/i-omsharma/decision-control-plane:v2-fix
+          imagePullPolicy: Always
           ports:
             - containerPort: 3000
               name: http
