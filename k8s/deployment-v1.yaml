@@ -122,7 +122,7 @@ spec:
       containers:
         - name: decision-platform
           image: ghcr.io/i-omsharma/decision-control-plane:v1
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           ports:
             - containerPort: 3000
               name: http
