@@ -47,6 +47,7 @@ import { loggingMiddleware } from "./middleware/logging.middleware.js";
 import { awarenessMiddleware } from "./middleware/awareness.middleware.js" 
 import { notFoundHandler } from "./middleware/notFound.middleware.js";
 import { errorHandlerMiddleware } from "./middleware/errorHandler.middleware.js";
+import { corsMiddleware } from "./middleware/cors.middleware.js";
 
 // ============================================================================
 // CONFIGURATION
@@ -73,6 +74,7 @@ const AI_TIMEOUT_MS = parseInt(process.env.AI_TIMEOUT_MS) || 5000;
 
 const app = express();
 app.use(express.json());
+app.use(corsMiddleware)
 
 // Initialize decision service
 const decisionService = new DecisionService({
