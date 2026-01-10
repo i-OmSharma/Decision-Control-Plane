@@ -265,20 +265,7 @@ Make a decision based on input signals.
 
 ## 🔧 Configuration
 
-### Rules (config/rules.yaml)
 
-```yaml
-rules:
-  - id: "DENY_001"
-    name: "Block high risk"
-    condition:
-      field: "signals.risk_score"
-      op: "gte"
-      value: 95
-    outcome: "SAFE_DENY"
-    priority: 1000
-    enabled: true
-```
 
 ### Supported Operators
 
@@ -288,19 +275,7 @@ rules:
 - `exists` - Field presence
 - `regex` - Pattern matching
 
-### Compound Conditions
 
-```yaml
-condition:
-  operator: "AND" # or "OR"
-  operands:
-    - field: "signals.risk_score"
-      op: "gte"
-      value: 40
-    - field: "signals.is_verified"
-      op: "eq"
-      value: false
-```
 
 ## 🚢 Deployment Strategy
 
