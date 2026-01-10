@@ -2,9 +2,7 @@
 
 Rule-first decisioning system with AI-assisted advisory for grey-zone cases
 
-Deterministic. Explainable. Production-ready.
-
-<br /> <p align="center"> <b> Decision Control Plane is a backend-first, Kubernetes-native system designed to make real-time decisions using deterministic rules as the final authority, with AI used strictly as an advisory layer for ambiguous cases. </b> <br /> <br /> </p> <p align="center"> <em>Rules are the authority. AI is the advisor.</em> </p> <br />
+ <p align="center"> <b> Decision Control Plane is a backend-first, Kubernetes-native system designed to make real-time decisions using deterministic rules as the final authority, with AI used strictly as an advisory layer for ambiguous cases. </b> <br /> </p> <p align="center"> <em>Rules are the authority. AI is the advisor.</em> </p> 
 
 ## Core Concept
 
